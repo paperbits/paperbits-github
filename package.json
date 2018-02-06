@@ -1,6 +1,6 @@
 {
   "name": "@paperbits/github",
-  "version": "0.0.1",
+  "version": "0.0.47",
   "description": "GitHub client library for Paperbits components.",
   "license": "GPL-3.0",
   "author": "Vienna LLC",
