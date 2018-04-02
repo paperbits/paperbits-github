@@ -2,7 +2,7 @@
   "name": "@paperbits/github",
   "version": "0.0.47",
   "description": "GitHub client library for Paperbits components.",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "author": "Vienna LLC",
   "repository": {
     "type": "git",
