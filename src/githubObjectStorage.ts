@@ -165,7 +165,7 @@
 //         return this.getIndex().then((index: IBag<IFileReference>) => {
 //             let result = new Array<IFileReference>();
 
-//             for (var key in index) {
+//             for (let key in index) {
 //                 let record = index[key];
 
 //                 if (!record.path.startsWith(path))

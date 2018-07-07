@@ -39,9 +39,9 @@ export class GithubBlobStorage implements IBlobStorage {
     }
 
     private base64ToUnit8Array(base64: string): Uint8Array {
-        var rawData = atob(base64);
-        var rawDataLength = rawData.length;
-        var byteArray = new Uint8Array(new ArrayBuffer(rawDataLength));
+        let rawData = atob(base64);
+        let rawDataLength = rawData.length;
+        let byteArray = new Uint8Array(new ArrayBuffer(rawDataLength));
 
         for (let i = 0; i < rawDataLength; i++) {
             byteArray[i] = rawData.charCodeAt(i);

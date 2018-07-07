@@ -307,7 +307,7 @@ export class GithubClient implements IGithubClient {
     public async createBlob(path: string, content: Uint8Array): Promise<void> {
         await this.ensureConfig();
 
-        var base64 = Utils.arrayBufferToBase64(content);
+        let base64 = Utils.arrayBufferToBase64(content);
 
         let requestBody = {
             content: base64,
