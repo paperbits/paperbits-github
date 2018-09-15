@@ -3,7 +3,7 @@
   "version": "0.0.47",
   "description": "GitHub client library for Paperbits components.",
   "license": "MIT",
-  "author": "Vienna LLC",
+  "author": "Paperbits",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/paperbits/paperbits-github.git"
