@@ -1,4 +1,4 @@
-// import { IBag } from '../IBag';
+// import { Bag } from '../Bag';
 // import { ILocalCache } from '../caching/ILocalCache';
 // import { IGithubClient } from '../github/IGithubClient';
 // import { IFileReference } from '../github/IFileReference';
@@ -18,7 +18,7 @@
 //     private readonly githubClient: IGithubClient;
 //     private readonly indexFileName: string;
 
-//     public index: IBag<IFileReference>;
+//     public index: Bag<IFileReference>;
 
 //     constructor(localCache: ILocalCache, githubClient: IGithubClient) {
 //         this.localCache = localCache;
@@ -31,7 +31,7 @@
 //         this.indexFileName = githubClient.repositoryName;
 //     }
 
-//     private getIndex(): Promise<IBag<IFileReference>> {
+//     private getIndex(): Promise<Bag<IFileReference>> {
 //         if (!this.index[this.indexFileName]) {
 //             let indexFileContent = this.localCache.getItem<string>(this.indexFileName);
 
@@ -143,7 +143,7 @@
 //         }
 //     }
 
-//     // addObject<T>(path:string, content:T, metadata:Paperbits.IBag<string>) {
+//     // addObject<T>(path:string, content:T, metadata:Paperbits.Bag<string>) {
 //     //     this.localCache.setItem(path, content);
 //     //
 //     //     this.index[path] = {
@@ -162,7 +162,7 @@
 //     }
 
 //     public searchObjectsByMetadata(path: string, metadataKey: Array<string>, metadataValue: string, exactSearch: boolean): Promise<Array<IFileReference>> {
-//         return this.getIndex().then((index: IBag<IFileReference>) => {
+//         return this.getIndex().then((index: Bag<IFileReference>) => {
 //             let result = new Array<IFileReference>();
 
 //             for (let key in index) {
@@ -229,7 +229,7 @@
 //     //     }
 //     // }
 
-//     public updateObjectsMetadata(path: string, metadata: IBag<string>) {
+//     public updateObjectsMetadata(path: string, metadata: Bag<string>) {
 //         let reference: IFileReference = this.index[path];
 //         $.extend(reference.metadata, metadata);
 //     }

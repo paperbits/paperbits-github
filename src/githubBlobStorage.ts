@@ -1,6 +1,6 @@
 import { ProgressPromise } from "./../progressPromise";
 import { IBlobStorage } from "./../persistence/IBlobStorage";
-import { IBag } from '../IBag';
+import { Bag } from '../Bag';
 import { IGithubClient } from '../github/IGithubClient';
 import { IFileReference } from '../github/IFileReference';
 import { IGithubFile } from '../github/IGithubFile';

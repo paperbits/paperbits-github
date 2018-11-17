@@ -1,6 +1,6 @@
-﻿﻿import { IBag } from "../IBag";
+﻿﻿import { IBag} from "../IBag;
 
 export interface IFileReference {
     path: string;
-    metadata: IBag<any>;
+    metadata: Bag<any>;
 }
