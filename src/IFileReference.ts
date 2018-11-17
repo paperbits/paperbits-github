@@ -1,4 +1,4 @@
-﻿﻿import { IBag} from "../IBag;
+﻿﻿import { Bag} from "../Bag;
 
 export interface IFileReference {
     path: string;
