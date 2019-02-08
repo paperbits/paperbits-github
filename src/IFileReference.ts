@@ -1,4 +1,4 @@
-﻿﻿import { Bag} from "../Bag;
+﻿﻿import { Bag } from "@paperbits/common/bag";
 
 export interface IFileReference {
     path: string;

@@ -1,16 +1,16 @@
-import { ProgressPromise } from "./../progressPromise";
-import { IBlobStorage } from "./../persistence/IBlobStorage";
-import { Bag } from '../Bag';
-import { IGithubClient } from '../github/IGithubClient';
-import { IFileReference } from '../github/IFileReference';
-import { IGithubFile } from '../github/IGithubFile';
-import { IGithubCommit } from '../github/IGithubCommit';
-import { IGithubReference } from '../github/IGithubReference';
-import { IGithubTreeItem } from '../github/IGithubTreeItem';
-import { IGithubCreateTreeResponse } from '../github/IGithubCreateTreeResponse';
-import { IGithubCreateBlobReponse } from '../github/IGithubCreateBlobReponse';
-import * as _ from 'lodash';
-import * as Utils from '../utils';
+import { ProgressPromise } from "@paperbits/common/progressPromise";
+import { IBlobStorage } from "@paperbits/common/persistence/IBlobStorage";
+import { Bag } from "@paperbits/common/bag";
+import { IGithubClient } from "./IGithubClient";
+import { IFileReference } from "./IFileReference";
+import { IGithubFile } from "./IGithubFile";
+import { IGithubCommit } from "./IGithubCommit";
+import { IGithubReference } from "./IGithubReference";
+import { IGithubTreeItem } from "./IGithubTreeItem";
+import { IGithubCreateTreeResponse } from "./IGithubCreateTreeResponse";
+import { IGithubCreateBlobReponse } from "./IGithubCreateBlobReponse";
+import * as _ from "lodash";
+import * as Utils from "@paperbits/common/utils";
 
 export class GithubBlobStorage implements IBlobStorage {
     private readonly githubClient: IGithubClient;
@@ -20,7 +20,7 @@ export class GithubBlobStorage implements IBlobStorage {
     }
 
     public uploadBlob(name: string, content: Uint8Array): ProgressPromise<void> {
-        let promise = new ProgressPromise<void>(async (resolve, reject, progress) => {
+        const promise = new ProgressPromise<void>(async (resolve, reject, progress) => {
             progress(0);
 
             name = name.replaceAll("\\", "/");
@@ -39,9 +39,9 @@ export class GithubBlobStorage implements IBlobStorage {
     }
 
     private base64ToUnit8Array(base64: string): Uint8Array {
-        let rawData = atob(base64);
-        let rawDataLength = rawData.length;
-        let byteArray = new Uint8Array(new ArrayBuffer(rawDataLength));
+        const rawData = atob(base64);
+        const rawDataLength = rawData.length;
+        const byteArray = new Uint8Array(new ArrayBuffer(rawDataLength));
 
         for (let i = 0; i < rawDataLength; i++) {
             byteArray[i] = rawData.charCodeAt(i);
@@ -51,22 +51,22 @@ export class GithubBlobStorage implements IBlobStorage {
     }
 
     public async downloadBlob(path: string): Promise<Uint8Array> {
-        let githubFile = await this.githubClient.getFileContent(path);
+        const githubFile = await this.githubClient.getFileContent(path);
 
         return this.base64ToUnit8Array(githubFile.content);
     }
 
     public async getDownloadUrl(permalink: string): Promise<string> {
-        throw "Not supported";
+        throw new Error("Not supported");
     }
 
     public deleteBlob(path: string): Promise<void> {
-        throw "Not supported";
+        throw new Error("Not supported");
     }
 
-    public async listBlobs(): Promise<Array<string>> {
-        let latestCommitTree = await this.githubClient.getLatestCommitTree();
-        let blobPaths = latestCommitTree.tree.filter(item => item.type === "blob").map(item => item.path);
+    public async listBlobs(): Promise<string[]> {
+        const latestCommitTree = await this.githubClient.getLatestCommitTree();
+        const blobPaths = latestCommitTree.tree.filter(item => item.type === "blob").map(item => item.path);
         return blobPaths;
     }
 }
