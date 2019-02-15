@@ -21,13 +21,13 @@
 //     }
 
 //     public async pushChanges(): Promise<void> {
-//         let indicator = this.viewManager.addProgressIndicator("Publishing", "Publishing to Github pages...");
+//         let toast = this.viewManager.addProgressToast("Publishing", "Publishing to Github pages...");
 
 //         await this.sitePublisher.publish();
 //         await this.githubClient.push(`Published: ${moment().format("MM/DD/YYYY, hh:mm:ss")}`);
 
 //         // TODO: How do we show failure?
-//         this.viewManager.scheduleIndicatorRemoval(indicator);
+//         this.viewManager.scheduleToastRemoval(toast);
 
 //         console.info("Pushed to Github!");
 //     }
