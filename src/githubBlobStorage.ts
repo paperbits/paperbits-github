@@ -1,4 +1,3 @@
-import { ProgressPromise } from "@paperbits/common/progressPromise";
 import { IBlobStorage } from "@paperbits/common/persistence/IBlobStorage";
 import { Bag } from "@paperbits/common/bag";
 import { IGithubClient } from "./IGithubClient";
@@ -19,8 +18,8 @@ export class GithubBlobStorage implements IBlobStorage {
         this.githubClient = githubClient;
     }
 
-    public uploadBlob(name: string, content: Uint8Array): ProgressPromise<void> {
-        const promise = new ProgressPromise<void>(async (resolve, reject, progress) => {
+    public uploadBlob(name: string, content: Uint8Array): Promise<void> {
+        const promise = new Promise<void>(async (resolve, reject, progress) => {
             progress(0);
 
             name = name.replaceAll("\\", "/");

@@ -1,5 +1,4 @@
-﻿import { ProgressPromise } from "./../progressPromise";
-import { ISettingsProvider } from "./../configuration/ISettingsProvider";
+﻿import { ISettingsProvider } from "./../configuration/ISettingsProvider";
 import { IHttpClient } from '../http/IHttpClient';
 import { IGithubClient } from '../github/IGithubClient';
 import { IGithubFile } from '../github/IGithubFile';
