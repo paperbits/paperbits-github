@@ -1,17 +1,17 @@
 // import * as moment from "moment";
 // import { SitePublisher } from "./../publishing/publisher";
-// import { IEventManager } from "./../events/IEventManager";
+// import { EventManager } from "./../events/EventManager";
 // import { IViewManager } from "./../ui/IViewManager";
 // import { IGithubTreeItem } from "./IGithubTreeItem";
 // import { IGithubClient } from "./IGithubClient";
 
 // export class GithubPublisher {
 //     private readonly githubClient: IGithubClient;
-//     private readonly eventManager: IEventManager;
+//     private readonly eventManager: EventManager;
 //     private readonly sitePublisher: SitePublisher;
 //     private readonly viewManager: IViewManager;
 
-//     constructor(githubClient: IGithubClient, eventManager: IEventManager, sitePublisher: SitePublisher, viewManager: IViewManager) {
+//     constructor(githubClient: IGithubClient, eventManager: EventManager, sitePublisher: SitePublisher, viewManager: IViewManager) {
 //         this.githubClient = githubClient;
 //         this.eventManager = eventManager;
 //         this.sitePublisher = sitePublisher;
