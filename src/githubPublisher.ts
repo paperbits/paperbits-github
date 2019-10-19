@@ -1,7 +1,7 @@
 // import * as moment from "moment";
 // import { SitePublisher } from "./../publishing/publisher";
 // import { EventManager } from "./../events/EventManager";
-// import { IViewManager } from "./../ui/IViewManager";
+// import { ViewManager } from "./../ui/viewManager";
 // import { IGithubTreeItem } from "./IGithubTreeItem";
 // import { IGithubClient } from "./IGithubClient";
 
@@ -9,9 +9,9 @@
 //     private readonly githubClient: IGithubClient;
 //     private readonly eventManager: EventManager;
 //     private readonly sitePublisher: SitePublisher;
-//     private readonly viewManager: IViewManager;
+//     private readonly viewManager: ViewManager;
 
-//     constructor(githubClient: IGithubClient, eventManager: EventManager, sitePublisher: SitePublisher, viewManager: IViewManager) {
+//     constructor(githubClient: IGithubClient, eventManager: EventManager, sitePublisher: SitePublisher, viewManager: ViewManager) {
 //         this.githubClient = githubClient;
 //         this.eventManager = eventManager;
 //         this.sitePublisher = sitePublisher;
