@@ -1,4 +1,4 @@
-import { IGithubObject } from '../github/IGithubObject';
+import { IGithubObject } from "./IGithubObject";
 
 export interface IGithubReference {
     ref: string;

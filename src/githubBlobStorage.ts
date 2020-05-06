@@ -1,16 +1,6 @@
-import { ProgressPromise } from "@paperbits/common/progressPromise";
 import { IBlobStorage } from "@paperbits/common/persistence/IBlobStorage";
-import { Bag } from "@paperbits/common/bag";
 import { IGithubClient } from "./IGithubClient";
-import { IFileReference } from "./IFileReference";
-import { IGithubFile } from "./IGithubFile";
-import { IGithubCommit } from "./IGithubCommit";
-import { IGithubReference } from "./IGithubReference";
-import { IGithubTreeItem } from "./IGithubTreeItem";
-import { IGithubCreateTreeResponse } from "./IGithubCreateTreeResponse";
-import { IGithubCreateBlobReponse } from "./IGithubCreateBlobReponse";
 import * as _ from "lodash";
-import * as Utils from "@paperbits/common/utils";
 
 export class GithubBlobStorage implements IBlobStorage {
     private readonly githubClient: IGithubClient;
@@ -19,10 +9,8 @@ export class GithubBlobStorage implements IBlobStorage {
         this.githubClient = githubClient;
     }
 
-    public uploadBlob(name: string, content: Uint8Array): ProgressPromise<void> {
-        const promise = new ProgressPromise<void>(async (resolve, reject, progress) => {
-            progress(0);
-
+    public uploadBlob(name: string, content: Uint8Array): Promise<void> {
+        const promise = new Promise<void>(async (resolve, reject) => {
             name = name.replaceAll("\\", "/");
 
             if (name.startsWith("/")) {
@@ -31,7 +19,6 @@ export class GithubBlobStorage implements IBlobStorage {
 
             await this.githubClient.createBlob(name, content);
 
-            progress(100);
             resolve();
         });
 
