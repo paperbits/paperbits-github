@@ -1,15 +1,9 @@
-import { Bag } from "@paperbits/common/bag";
-import { ILocalCache } from "@paperbits/common/caching/ILocalCache";
-import { IGithubClient } from "./IGithubClient";
-import { IFileReference } from "./IFileReference";
-import * as Objects from "@paperbits/common/objects";
-import { HttpClient } from "@paperbits/common/http";
-import { IObjectStorage, Query, Operator, OrderDirection } from "@paperbits/common/persistence";
-import { IGithubCreateTreeResponse } from "./IGithubCreateTreeResponse";
-import { IGithubCreateBlobReponse } from "./IGithubCreateBlobReponse";
-import * as _ from "lodash";
-import * as moment from "moment";
 import * as Utils from "@paperbits/common";
+import * as Objects from "@paperbits/common/objects";
+import * as _ from "lodash";
+import { Bag } from "@paperbits/common/bag";
+import { IObjectStorage, Operator, OrderDirection, Query } from "@paperbits/common/persistence";
+import { IGithubClient } from "./IGithubClient";
 import { IGithubTreeItem } from "./IGithubTreeItem";
 
 
@@ -209,35 +203,10 @@ export class GithubObjectStorage implements IObjectStorage {
     public async saveChanges(): Promise<void> {
         const lastCommit = await this.githubClient.getLatestCommit();
         const newTree = await this.createChangesTree();
-        const tree = await this.githubClient.createTree(null, newTree);
-        const message = `commit: ${moment().format("MM/DD/YYYY, hh:mm:ss")}`;
+        const tree = await this.githubClient.createTree(lastCommit.tree.sha, newTree);
+        const message = `Updating website content.`;
         const newCommit = await this.githubClient.createCommit(lastCommit.sha, tree.sha, message);
-        const head = await this.githubClient.updateReference("master", newCommit.sha);
-
-        // const saveTasks = [];
-        // const keys = [];
-
-
-
-        // Object.keys(delta).map(key => {
-        //     const firstLevelObject = delta[key];
-
-        //     Object.keys(firstLevelObject).forEach(subkey => {
-        //         keys.push(`${key}/${subkey}`);
-        //     });
-        // });
-
-        // keys.forEach(key => {
-        //     const changeObject = Objects.getObjectAt(key, delta);
-
-        //     if (changeObject) {
-        //         saveTasks.push(this.updateObject(key, changeObject));
-        //     }
-        //     else {
-        //         saveTasks.push(this.deleteObject(key));
-        //     }
-        // });
-
-        // await Promise.all(saveTasks);
+        
+        await this.githubClient.updateReference("master", newCommit.sha);
     }
 }

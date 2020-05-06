@@ -259,6 +259,8 @@ export class GithubClient implements IGithubClient {
     public async pushTree(treeItems: IGithubTreeItem[], message: string = null, branch: string = "master"): Promise<IGithubReference> {
         await this.ensureConfig();
 
+        console.log(`Pushing ${treeItems.length} files to branch ${branch}.`);
+
         // get the head of the master branch
         const heads = await this.getHeads();
 

@@ -1,28 +1,35 @@
+import * as _ from "lodash";
+import * as Utils from "@paperbits/common";
 import { IBlobStorage } from "@paperbits/common/persistence/IBlobStorage";
 import { IGithubClient } from "./IGithubClient";
-import * as _ from "lodash";
+import { IGithubTreeItem } from "./IGithubTreeItem";
 
 export class GithubBlobStorage implements IBlobStorage {
-    private readonly githubClient: IGithubClient;
+    private readonly changes: IGithubTreeItem[];
 
-    constructor(githubClient: IGithubClient) {
-        this.githubClient = githubClient;
+    constructor(private readonly githubClient: IGithubClient) {
+        this.changes = [];
     }
 
-    public uploadBlob(name: string, content: Uint8Array): Promise<void> {
-        const promise = new Promise<void>(async (resolve, reject) => {
-            name = name.replaceAll("\\", "/");
+    public getChanges(): IGithubTreeItem[] {
+        return this.changes;
+    }
 
-            if (name.startsWith("/")) {
-                name = name.substr(1);
-            }
+    public async uploadBlob(key: string, content: Uint8Array): Promise<void> {
+        key = key.replaceAll("\\", "/");
 
-            await this.githubClient.createBlob(name, content);
+        if (key.startsWith("/")) {
+            key = key.substr(1);
+        }
 
-            resolve();
-        });
+        const response = await this.githubClient.createBlob(key, content);
 
-        return promise;
+        const newTreeItem: IGithubTreeItem = {
+            path: key,
+            sha: response.sha
+        };
+
+        this.changes.push(newTreeItem);
     }
 
     private base64ToUnit8Array(base64: string): Uint8Array {
