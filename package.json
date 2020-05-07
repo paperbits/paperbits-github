@@ -1,18 +1,18 @@
 {
-  "name": "@paperbits/github",
-  "version": "0.1.38",
-  "description": "GitHub client library for Paperbits components.",
-  "license": "MIT",
-  "author": "Paperbits",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/paperbits/paperbits-github.git"
-  },
-  "keywords": [
-    "paperbits",
-    "github"
-  ],
-  "dependencies": {
-    "@paperbits/common": "0.1.38"
-  }
+    "name": "@paperbits/github",
+    "version": "0.1.270",
+    "description": "GitHub client library for Paperbits components.",
+    "license": "MIT",
+    "author": "Paperbits",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/paperbits/paperbits-github.git"
+    },
+    "keywords": [
+        "paperbits",
+        "github"
+    ],
+    "dependencies": {
+        "@paperbits/common": "0.1.270"
+    }
 }
