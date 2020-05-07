@@ -1,9 +1,9 @@
-import { IGithubCommit } from '../github/IGithubCommit';
-import { IGithubTreeItem } from '../github/IGithubTreeItem';
+import { IGithubCommit } from "./IGithubCommit";
+import { IGithubTreeItem } from "./IGithubTreeItem";
 
 export interface IGithubGetTreeResponse {
     sha: string;
-    tree: Array<IGithubTreeItem>;
+    tree: IGithubTreeItem[];
     truncated: boolean;
     url: string;
     lastCommit?: IGithubCommit;

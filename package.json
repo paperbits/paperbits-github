@@ -13,6 +13,8 @@
         "github"
     ],
     "dependencies": {
-        "@paperbits/common": "0.1.270"
+        "@paperbits/common": "0.1.270",
+        "lodash": "^4.17.15",
+        "moment": "^2.25.3"
     }
 }

@@ -1,244 +1,240 @@
-// import { Bag } from '../bag';
-// import { ILocalCache } from '../caching/ILocalCache';
-// import { IGithubClient } from '../github/IGithubClient';
-// import { IFileReference } from '../github/IFileReference';
-// import { IGithubFile } from '../github/IGithubFile';
-// import { IGithubCommit } from '../github/IGithubCommit';
-// import { IGithubReference } from '../github/IGithubReference';
-// import { IGithubTreeItem } from '../github/IGithubTreeItem';
-// import { IObjectStorage } from '../persistence/IObjectStorage';
-// import { IGithubCreateTreeResponse } from '../github/IGithubCreateTreeResponse';
-// import { IGithubCreateBlobReponse } from '../github/IGithubCreateBlobReponse';
-// import * as _ from 'lodash';
-// import * as moment from 'moment';
+import * as Utils from "@paperbits/common";
+import * as Objects from "@paperbits/common/objects";
+import * as _ from "lodash";
+import { Bag } from "@paperbits/common/bag";
+import { IObjectStorage, Operator, OrderDirection, Query } from "@paperbits/common/persistence";
+import { IGithubClient } from "./IGithubClient";
+import { IGithubTreeItem } from "./IGithubTreeItem";
+import { ISettingsProvider } from "@paperbits/common/configuration";
 
 
-// export class GithubObjectStorage implements IObjectStorage {
-//     private readonly localCache: ILocalCache;
-//     private readonly githubClient: IGithubClient;
-//     private readonly indexFileName: string;
+export class GithubObjectStorage implements IObjectStorage {
+    private loadDataPromise: Promise<Object>;
+    protected storageDataObject: Object;
+    private splitter: string = "/";
+    private pathToData: string;
 
-//     public index: Bag<IFileReference>;
+    constructor(
+        private readonly settingsProvider: ISettingsProvider,
+        private readonly githubClient: IGithubClient
+    ) { }
 
-//     constructor(localCache: ILocalCache, githubClient: IGithubClient) {
-//         this.localCache = localCache;
-//         this.githubClient = githubClient;
+    protected async getData(): Promise<Object> {
+        if (this.loadDataPromise) {
+            return this.loadDataPromise;
+        }
 
-//         //rebinding...
-//         this.saveChanges = this.saveChanges.bind(this);
+        this.loadDataPromise = new Promise<Object>(async (resolve) => {
+            const githubSettings = await this.settingsProvider.getSetting("github");
+            this.pathToData = githubSettings["pathToData"];
 
-//         this.index = {};
-//         this.indexFileName = githubClient.repositoryName;
-//     }
+            const response = await this.githubClient.getFileContent(this.pathToData);
+            this.storageDataObject = JSON.parse(atob(response.content));
 
-//     private getIndex(): Promise<Bag<IFileReference>> {
-//         if (!this.index[this.indexFileName]) {
-//             let indexFileContent = this.localCache.getItem<string>(this.indexFileName);
+            resolve(this.storageDataObject);
+        });
 
-//             if (indexFileContent) {
-//                 this.index = JSON.parse(indexFileContent);
+        return this.loadDataPromise;
+    }
 
-//                 return Promise.resolve(this.index);
-//             }
+    public async addObject(path: string, dataObject: Object): Promise<void> {
+        if (path) {
+            const pathParts = path.split(this.splitter);
+            const mainNode = pathParts[0];
 
-//             // return this.githubClient.getFileContent(this.indexFileName).then((file: IGithubFile) => {
-//             //     let decodedContent = atob(file.content);
-//             //     this.index = JSON.parse(decodedContent);
-//             //     this.saveIndex();
+            if (pathParts.length === 1 || (pathParts.length === 2 && !pathParts[1])) {
+                this.storageDataObject[mainNode] = dataObject;
+            }
+            else {
+                if (!_.has(this.storageDataObject, mainNode)) {
+                    this.storageDataObject[mainNode] = {};
+                }
+                this.storageDataObject[mainNode][pathParts[1]] = dataObject;
+            }
+        }
+        else {
+            Object.keys(dataObject).forEach(prop => {
+                const obj = dataObject[prop];
+                const pathParts = prop.split(this.splitter);
+                const mainNode = pathParts[0];
 
-//             //     return this.index;
-//             // });
+                if (pathParts.length === 1 || (pathParts.length === 2 && !pathParts[1])) {
+                    this.storageDataObject[mainNode] = obj;
+                }
+                else {
+                    if (!_.has(this.storageDataObject, mainNode)) {
+                        this.storageDataObject[mainNode] = {};
+                    }
+                    this.storageDataObject[mainNode][pathParts[1]] = obj;
+                }
+            });
+        }
+    }
 
-//             return null;
-//         }
-//         else {
-//             return Promise.resolve(this.index);
-//         }
-//     }
+    public async getObject<T>(path: string): Promise<T> {
+        const data = await this.getData();
 
-//     private saveIndex(): void {
-//         this.localCache.setItem(this.indexFileName, JSON.stringify(this.index));
-//     }
+        return Objects.getObjectAt(path, Objects.clone(data));
+    }
 
-//     public async saveChanges(): Promise<void> {
-//         let keys = this.localCache.getKeys();
+    public async deleteObject(path: string): Promise<void> {
+        if (!path) {
+            return;
+        }
 
-//         if (!keys || !keys.length) {
-//             return;
-//         }
+        Objects.deleteNodeAt(path, this.storageDataObject);
+    }
 
-//         let lastCommit = await this.githubClient.getLatestCommit();
-//         let newTree = await this.createChangesTree();
-//         let tree = await this.githubClient.createTree(null, newTree);
-//         let message = `commit: ${moment().format("MM/DD/YYYY, hh:mm:ss")}`;
-//         let newCommit = await this.githubClient.createCommit(lastCommit.sha, tree.sha, message);
-//         let head = await this.githubClient.updateReference("master", newCommit.sha);
+    public async updateObject<T>(path: string, dataObject: T): Promise<void> {
+        if (!path) {
+            return;
+        }
 
-//         console.info("Pushed!");
+        const clone: any = Objects.clone(dataObject);
+        Objects.setValue(path, this.storageDataObject, clone);
+        Objects.cleanupObject(clone); // Ensure all "undefined" are cleaned up
+    }
 
-//         this.saveIndex();
-//     }
+    public async searchObjects<T>(path: string, query: Query<T>): Promise<Bag<T>> {
+        const searchResultObject: Bag<T> = {};
+        const data = await this.getData();
 
-//     private async createChangesTree(): Promise<Array<IGithubTreeItem>> {
-//         let newTree = new Array<IGithubTreeItem>();
-//         let createBlobTasks = new Array<Promise<any>>();
-//         let keys = Object.keys(this.index);
-//         let needToUpdateIndex = false;
+        if (!data) {
+            return searchResultObject;
+        }
 
-//         keys.forEach((key: string) => {
-//             let record = this.index[key];
+        const searchObj = Objects.getObjectAt(path, data);
 
-//             if (record.path != this.indexFileName) {
-//                 let newTreeItem: IGithubTreeItem = {
-//                     path: record.path
-//                 };
+        if (!searchObj) {
+            return {};
+        }
 
-//                 newTree.push(newTreeItem);
+        let collection = Object.values(searchObj);
 
-//                 let fileAddedOrUpdated = !record.metadata["sha"] && record.path != this.indexFileName;
+        if (query) {
+            if (query.filters.length > 0) {
+                collection = collection.filter(x => {
+                    let meetsCriteria = true;
 
-//                 if (fileAddedOrUpdated) {
-//                     console.info("Uploading " + record.path);
-//                     let content = this.localCache.getItem<string>(record.path);
+                    for (const filter of query.filters) {
+                        let left = Objects.getObjectAt<any>(filter.left, x);
+                        let right = filter.right;
 
-//                     if (!content || content.length == 0) {
-//                         throw "Empty content!";
-//                     }
+                        if (left === undefined) {
+                            meetsCriteria = false;
+                            continue;
+                        }
 
-//                     let createBlobTask = this.githubClient.createBlobFromString(content);
+                        if (typeof left === "string") {
+                            left = left.toUpperCase();
+                        }
 
-//                     createBlobTask.then((response: IGithubCreateBlobReponse) => {
-//                         newTreeItem.sha = response.sha;
-//                         record.metadata["sha"] = response.sha;
-//                         needToUpdateIndex = true;
-//                     });
+                        if (typeof right === "string") {
+                            right = right.toUpperCase();
+                        }
 
-//                     createBlobTasks.push(createBlobTask);
-//                 }
-//                 else {
-//                     newTreeItem.sha = record.metadata["sha"];
-//                 }
-//             }
-//         });
+                        const operator = filter.operator;
 
-//         await Promise.all(createBlobTasks);
+                        switch (operator) {
+                            case Operator.contains:
+                                if (left && !left.contains(right)) {
+                                    meetsCriteria = false;
+                                }
+                                break;
 
-//         if (needToUpdateIndex) {
-//             console.info("Uploading index file.");
-//             let response = await this.githubClient.createBlobFromString(JSON.stringify(this.index));
+                            case Operator.equals:
+                                if (left !== right) {
+                                    meetsCriteria = false;
+                                }
+                                break;
 
-//             let sha = response.sha;
+                            default:
+                                throw new Error("Cannot translate operator into Firebase Realtime Database query.");
+                        }
+                    }
 
-//             let newTreeItem: IGithubTreeItem = {
-//                 path: this.indexFileName,
-//                 sha: sha
-//             };
+                    return meetsCriteria;
+                });
+            }
 
-//             newTree.push(newTreeItem);
+            if (query.orderingBy) {
+                const property = query.orderingBy;
 
-//             return newTree;
-//         }
-//         else {
-//             return newTree;
-//         }
-//     }
+                collection = collection.sort((x, y) => {
+                    const a = Objects.getObjectAt<any>(property, x);
+                    const b = Objects.getObjectAt<any>(property, y);
+                    const modifier = query.orderDirection === OrderDirection.accending ? 1 : -1;
 
-//     // addObject<T>(path:string, content:T, metadata:Paperbits.Bag<string>) {
-//     //     this.localCache.setItem(path, content);
-//     //
-//     //     this.index[path] = {
-//     //         path: path,
-//     //         metadata: metadata
-//     //     };
-//     //     this.saveIndex();
-//     // }
+                    if (a > b) {
+                        return modifier;
+                    }
 
-//     public addObject(path: string, dataObject: any): Promise<void> {
-//         return undefined;
-//     }
+                    if (a < b) {
+                        return -modifier;
+                    }
 
-//     public searchObjects<T>(path: string, propertyNames?: Array<string>, searchValue?: string, startAtSearch?: boolean, loadObject = true): Promise<Array<T>> {
-//         return undefined;
-//     }
+                    return 0;
+                });
+            }
+        }
 
-//     public searchObjectsByMetadata(path: string, metadataKey: Array<string>, metadataValue: string, exactSearch: boolean): Promise<Array<IFileReference>> {
-//         return this.getIndex().then((index: Bag<IFileReference>) => {
-//             let result = new Array<IFileReference>();
+        collection.forEach(item => {
+            const segments = item.key.split("/");
+            const key = segments[1];
 
-//             for (let key in index) {
-//                 let record = index[key];
+            Objects.setValue(key, searchResultObject, item);
+            Objects.cleanupObject(item); // Ensure all "undefined" are cleaned up
+        });
 
-//                 if (!record.path.startsWith(path))
-//                     continue;
+        return searchResultObject;
+    }
 
-//                 if (exactSearch) {
-//                     if (metadataKey.any(tag => record.metadata[tag] == metadataValue)) {
-//                         result.push(record);
-//                     }
-//                 }
-//                 else {
-//                     if (metadataKey.any(tag => record.metadata[tag].contains(metadataValue))) {
-//                         result.push(record);
-//                     }
-//                 }
-//             }
+    private async createChangesTree(): Promise<IGithubTreeItem[]> {
+        const newTree = new Array<IGithubTreeItem>();
+        const content = Utils.stringToUnit8Array(JSON.stringify(this.storageDataObject));
+        const response = await this.githubClient.createBlob(this.pathToData, content);
 
-//             return result;
-//         });
-//     }
+        const newTreeItem: IGithubTreeItem = {
+            path: this.pathToData,
+            sha: response.sha
+        };
 
-//     public getObject<T>(path: string): Promise<T> {
-//         let cachedFile = this.localCache.getItem<T>(path);
+        newTree.push(newTreeItem);
 
-//         if (cachedFile) {
-//             return Promise.resolve(cachedFile);
-//         }
+        return newTree;
+    }
 
-//         // return this.githubClient.getFileContent(path).then((file: IGithubFile) => {
-//         //     let decodedContent = JSON.parse(atob(file.content));
-//         //     this.localCache.setItem(path, decodedContent);
-//         //     return decodedContent;
-//         // });
+    public async saveChanges(delta: Object): Promise<void> {
+        const saveTasks = [];
+        const keys = [];
 
-//         return null;
-//     }
+        Object.keys(delta).map(key => {
+            const firstLevelObject = delta[key];
 
-//     public updateObject<T>(path: string, dataObject: T): Promise<T> {
-//         let original = this.localCache.getItem(path);
+            Object.keys(firstLevelObject).forEach(subkey => {
+                keys.push(`${key}/${subkey}`);
+            });
+        });
 
-//         if (!_.isEqual(original, dataObject)) {
-//             this.localCache.setItem(path, dataObject);
+        keys.forEach(key => {
+            const changeObject = Objects.getObjectAt(key, delta);
 
-//             let reference: IFileReference = this.index[path];
+            if (changeObject) {
+                saveTasks.push(this.updateObject(key, changeObject));
+            }
+            else {
+                saveTasks.push(this.deleteObject(key));
+            }
+        });
 
-//             reference.metadata["sha"] = null; //means that we need a new blob
-//         }
+        await Promise.all(saveTasks);
 
-//         return Promise.resolve(dataObject);
-//     }
+        const newTree = await this.createChangesTree();
+        const lastCommit = await this.githubClient.getLatestCommit();
+        const tree = await this.githubClient.createTree(lastCommit.tree.sha, newTree);
 
-//     // updateObject<T>(path:string, content:T) {
-//     //     let original = this.localCache.getItem(path);
-//     //
-//     //     if (!_.isEqual(original, content)) {
-//     //         this.localCache.setItem(path, content);
-//     //
-//     //         let reference: IFileReference = this.index[path];
-//     //
-//     //         reference.metadata["sha"] = null; //means that we need a new blob
-//     //     }
-//     // }
-
-//     public updateObjectsMetadata(path: string, metadata: Bag<string>) {
-//         let reference: IFileReference = this.index[path];
-//         $.extend(reference.metadata, metadata);
-//     }
-
-//     public deleteObject(path: string): Promise<void> {
-//         delete this.index[path];
-
-//         this.localCache.removeItem(path); // track deleting to propagate to github
-
-//         return Promise.resolve();
-//     }
-// }
+        const message = `Updating website content.`;
+        const commit = await this.githubClient.createCommit(lastCommit.sha, tree.sha, message);
+        await this.githubClient.updateReference("master", commit.sha);
+    }
+}

@@ -1,4 +1,4 @@
-import { IGithubTree } from '../github/IGithubTree';
+import { IGithubTree } from "./IGithubTree";
 
 export interface IGithubCommit {
     author: any;

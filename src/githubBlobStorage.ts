@@ -1,41 +1,35 @@
-import { ProgressPromise } from "@paperbits/common/progressPromise";
-import { IBlobStorage } from "@paperbits/common/persistence/IBlobStorage";
-import { Bag } from "@paperbits/common/bag";
-import { IGithubClient } from "./IGithubClient";
-import { IFileReference } from "./IFileReference";
-import { IGithubFile } from "./IGithubFile";
-import { IGithubCommit } from "./IGithubCommit";
-import { IGithubReference } from "./IGithubReference";
-import { IGithubTreeItem } from "./IGithubTreeItem";
-import { IGithubCreateTreeResponse } from "./IGithubCreateTreeResponse";
-import { IGithubCreateBlobReponse } from "./IGithubCreateBlobReponse";
 import * as _ from "lodash";
-import * as Utils from "@paperbits/common/utils";
+import * as Utils from "@paperbits/common";
+import { IBlobStorage } from "@paperbits/common/persistence/IBlobStorage";
+import { IGithubClient } from "./IGithubClient";
+import { IGithubTreeItem } from "./IGithubTreeItem";
 
 export class GithubBlobStorage implements IBlobStorage {
-    private readonly githubClient: IGithubClient;
+    private readonly changes: IGithubTreeItem[];
 
-    constructor(githubClient: IGithubClient) {
-        this.githubClient = githubClient;
+    constructor(private readonly githubClient: IGithubClient) {
+        this.changes = [];
     }
 
-    public uploadBlob(name: string, content: Uint8Array): ProgressPromise<void> {
-        const promise = new ProgressPromise<void>(async (resolve, reject, progress) => {
-            progress(0);
+    public getChanges(): IGithubTreeItem[] {
+        return this.changes;
+    }
 
-            name = name.replaceAll("\\", "/");
+    public async uploadBlob(key: string, content: Uint8Array): Promise<void> {
+        key = key.replaceAll("\\", "/");
 
-            if (name.startsWith("/")) {
-                name = name.substr(1);
-            }
+        if (key.startsWith("/")) {
+            key = key.substr(1);
+        }
 
-            await this.githubClient.createBlob(name, content);
+        const response = await this.githubClient.createBlob(key, content);
 
-            progress(100);
-            resolve();
-        });
+        const newTreeItem: IGithubTreeItem = {
+            path: key,
+            sha: response.sha
+        };
 
-        return promise;
+        this.changes.push(newTreeItem);
     }
 
     private base64ToUnit8Array(base64: string): Uint8Array {
