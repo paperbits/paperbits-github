@@ -92,7 +92,6 @@ export class GithubClient implements IGithubClient {
         });
     }
 
-
     /**
      * Please see http://developer.github.com/v3/git/refs/
      */
