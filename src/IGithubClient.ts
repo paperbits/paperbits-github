@@ -1,5 +1,4 @@
 ﻿import { IGithubFile } from "./IGithubFile";
-import { HttpHeader } from "@paperbits/common/http/HttpHeader";
 import { IGithubCommit } from "./IGithubCommit";
 import { IGithubReference } from "./IGithubReference";
 import { IGithubGetTreeResponse } from "./IGithubGetTreeResponse";
@@ -7,8 +6,7 @@ import { IGithubCreateTreeResponse } from "./IGithubCreateTreeResponse";
 import { IGithubTreeItem } from "./IGithubTreeItem";
 import { IGithubCreateBlobReponse } from "./IGithubCreateBlobReponse";
 import { IGithubBlob } from "./IGithubBlob";
-import { IGithubGetBlobResponse } from "./IGithubGetBlobResponse";
-import { IGithubObject } from "./IGithubObject";
+
 
 export interface IGithubClient {
     repositoryName: string;
