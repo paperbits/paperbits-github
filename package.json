@@ -1,6 +1,6 @@
 {
     "name": "@paperbits/github",
-    "version": "0.1.465",
+    "version": "0.1.466",
     "description": "GitHub client library for Paperbits components.",
     "license": "MIT",
     "author": "Paperbits",
@@ -13,7 +13,7 @@
         "github"
     ],
     "dependencies": {
-        "@paperbits/common": "0.1.465",
+        "@paperbits/common": "0.1.466",
         "lodash": "^4.17.15",
         "moment": "^2.25.3"
     }
