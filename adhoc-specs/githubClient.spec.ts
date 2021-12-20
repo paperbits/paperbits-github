@@ -1,7 +1,7 @@
 import * as atob from "atob";
 import * as Utils from "@paperbits/common";
 import { XmlHttpRequestClient } from "@paperbits/common/http/xmlHttpRequestClient";
-import { GithubClient } from "./../src/githubClient";
+import { GithubClient } from "../src/githubClient";
 import { StaticSettingsProvider } from "./staticSettingsProvider";
 import { IGithubTreeItem } from "../src/IGithubTreeItem";
 
