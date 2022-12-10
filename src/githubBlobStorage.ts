@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import { IBlobStorage } from "@paperbits/common/persistence/IBlobStorage";
 import { IGithubClient } from "./IGithubClient";
 import { IGithubTreeItem } from "./IGithubTreeItem";

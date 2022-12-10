@@ -1,5 +1,4 @@
-﻿import * as _ from "lodash";
-import * as moment from "moment";
+﻿import * as moment from "moment";
 import * as Utils from "@paperbits/common/utils";
 import { ISettingsProvider } from "@paperbits/common/configuration";
 import { HttpHeader, HttpMethod, HttpClient } from "@paperbits/common/http";
@@ -261,9 +260,10 @@ export class GithubClient implements IGithubClient {
 
         // get the head of the master branch
         const heads = await this.getHeads();
+        const lastHead = heads.pop();
 
         // get the last commit
-        const lastCommitReference = _.last(heads).object;
+        const lastCommitReference = lastHead.object;
         const lastCommit = await this.getCommit(lastCommitReference.sha);
 
         // create tree object (also implicitly creates a blob based on content)
@@ -335,9 +335,10 @@ export class GithubClient implements IGithubClient {
 
         // get the head of the master branch
         const heads = await this.getHeads();
+        const lastHead = heads.pop();
 
         // get the last commit
-        const lastCommitReference: IGithubObject = _.last(heads).object;
+        const lastCommitReference: IGithubObject = lastHead.object;
         const lastCommit = await this.getCommit(lastCommitReference.sha);
 
         // get the last commit tree
@@ -352,8 +353,9 @@ export class GithubClient implements IGithubClient {
 
         // get the head of the master branch
         const heads = await this.getHeads();
+        const lastHead = heads.pop();
 
-        const lastCommitReference: IGithubObject = _.last(heads).object;
+        const lastCommitReference: IGithubObject = lastHead.object;
 
         // get the last commit
         const commit = await this.getCommit(lastCommitReference.sha);

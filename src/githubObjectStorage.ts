@@ -1,6 +1,5 @@
 import * as Utils from "@paperbits/common";
 import * as Objects from "@paperbits/common/objects";
-import * as _ from "lodash";
 import { Bag } from "@paperbits/common/bag";
 import { IObjectStorage, Operator, OrderDirection, Query } from "@paperbits/common/persistence";
 import { IGithubClient } from "./IGithubClient";
@@ -46,7 +45,7 @@ export class GithubObjectStorage implements IObjectStorage {
                 this.storageDataObject[mainNode] = dataObject;
             }
             else {
-                if (!_.has(this.storageDataObject, mainNode)) {
+                if (!this.storageDataObject.hasOwnProperty(mainNode)) {
                     this.storageDataObject[mainNode] = {};
                 }
                 this.storageDataObject[mainNode][pathParts[1]] = dataObject;
@@ -62,7 +61,7 @@ export class GithubObjectStorage implements IObjectStorage {
                     this.storageDataObject[mainNode] = obj;
                 }
                 else {
-                    if (!_.has(this.storageDataObject, mainNode)) {
+                    if (!this.storageDataObject.hasOwnProperty(mainNode)) {
                         this.storageDataObject[mainNode] = {};
                     }
                     this.storageDataObject[mainNode][pathParts[1]] = obj;
