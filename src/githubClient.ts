@@ -2,6 +2,7 @@
 import * as Utils from "@paperbits/common/utils";
 import { ISettingsProvider } from "@paperbits/common/configuration";
 import { HttpHeader, HttpMethod, HttpClient } from "@paperbits/common/http";
+import { HttpHeaders } from "@paperbits/common/http/httpHeaders";
 import { IGithubClient } from "./IGithubClient";
 import { IGithubFile } from "./IGithubFile";
 import { IGithubCommit } from "./IGithubCommit";
@@ -48,7 +49,7 @@ export class GithubClient implements IGithubClient {
         this.repositoryOwner = githubSettings["repositoryOwner"];
         this.baseUrl = `https://api.github.com/repos/${this.repositoryOwner}/${this.repositoryName}`;
         this.baseRepositoriesUrl = `${this.baseUrl}/git`;
-        this.mandatoryHttpHeaders = [{ name: "Authorization", value: "token " + this.authorizationToken }];
+        this.mandatoryHttpHeaders = [{ name: HttpHeaders.Authorization, value: "token " + this.authorizationToken }];
 
         return Promise.resolve();
     }
